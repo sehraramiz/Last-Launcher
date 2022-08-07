@@ -1228,7 +1228,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     @Override
     public void onDoubleTap() {
-
+        showHiddenApps();
     }
 
     private static Locale mLocale;

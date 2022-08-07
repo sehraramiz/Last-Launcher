@@ -55,14 +55,27 @@ public class HiddenAppsDialogs extends Dialog {
         setContentView(R.layout.dialog_hidden_apps);
         ListView listView = findViewById(R.id.hidden_app_list);
 
+        listView.setLongClickable(true);
         UniversalAdapter adapter = new UniversalAdapter(context, hiddenApps);
         listView.setAdapter(adapter);
-        adapter.setOnClickListener(this::confirmationAndRemove);
+        adapter.setOnLongClickListener(this::confirmationAndRemove);
+        adapter.setOnClickListener(this::openApp);
 
     }
 
+    private void openApp(Apps apps, View view) {
 
-    private void confirmationAndRemove(Apps apps, View view) {
+        if (!apps.isShortcut()) {
+            String[] strings = apps.getActivityName().split("/");
+            final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+            intent.setClassName(strings[0], strings[1]);
+            intent.setComponent(new ComponentName(strings[0], strings[1]));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
+    private boolean confirmationAndRemove(Apps apps, View view) {
 
         Context ctx;
         if (DbUtils.getTheme() == R.style.Wallpaper)
@@ -79,23 +92,15 @@ public class HiddenAppsDialogs extends Dialog {
                 apps.setAppHidden(false);
                 updateHiddenList();
             } else if (menuItem.getItemId() == R.id.menu_run_this_app) {
-                if (!apps.isShortcut()) {
-                    String[] strings = apps.getActivityName().split("/");
-                    final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-                    intent.setClassName(strings[0], strings[1]);
-                    intent.setComponent(new ComponentName(strings[0], strings[1]));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
-
+                openApp(apps, view);
             }
             return true;
 
         });
         popupMenu.show();
+        return true;
 
     }
-
 
     public int updateHiddenList() {
         for (Apps apps : mAppsList) {
