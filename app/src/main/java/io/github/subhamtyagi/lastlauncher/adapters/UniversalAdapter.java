@@ -38,6 +38,7 @@ public class UniversalAdapter extends ArrayAdapter<Apps> {
     private final Context context;
     private final ArrayList<Apps> list;
     private OnClickListener listener;
+    private OnLongClickListener longListener;
 
     public UniversalAdapter(Context context, ArrayList<Apps> list) {
         super(context, R.layout.list_item, list);
@@ -47,6 +48,10 @@ public class UniversalAdapter extends ArrayAdapter<Apps> {
 
     public void setOnClickListener(OnClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setOnLongClickListener(OnLongClickListener longListener) {
+        this.longListener = longListener;
     }
 
     @Override
@@ -59,14 +64,20 @@ public class UniversalAdapter extends ArrayAdapter<Apps> {
         textView.setTag(position);
 
         row.setOnClickListener(view -> listener.onClick(getItem((int) view.getTag()), view));
+        row.setOnLongClickListener(view -> longListener.onLongClick(getItem((int) view.getTag()), view));
 
         textView.setOnClickListener(view -> listener.onClick(getItem((int) view.getTag()), view));
+        textView.setOnLongClickListener(view -> longListener.onLongClick(getItem((int) view.getTag()), view));
         return row;
     }
 
 
     public interface OnClickListener {
         void onClick(Apps apps, View view);
+    }
+
+    public interface OnLongClickListener {
+        boolean onLongClick(Apps apps, View view);
     }
 
 }
