@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <!--App information related strings-->
     <!--app menu-->
-    <string name="color_for_this_entry">Colors &amp; Size</string>
+    <string name="color_for_this_entry">Colors, Size, Position</string>
     <!--Rename app-->
     <string name="rename">Rename</string>
 
@@ -86,6 +86,8 @@
     <string name="custom">Customs</string>
     <!--Sort Apps By: APP SIZE-->
     <string name="by_size">Size</string>
+    <!--Sort Apps By: APP POSITION-->
+    <string name="by_position">Position</string>
     <!--Sort Apps By: UPDATE TIME-->
     <string name="update_time">Update time</string>
     <!--Sort Apps IN : RECENTLY USED FIRST ORDER -->

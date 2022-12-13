@@ -29,7 +29,23 @@
         android:layout_height="wrap_content"
         android:paddingBottom="20dp" />
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center|center_horizontal|center_vertical"
+        android:text="size"
+        android:textSize="20sp" />
     <include layout="@layout/size_section"/>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center|center_horizontal|center_vertical"
+        android:text="position"
+        android:textSize="20sp" />
+    <include layout="@layout/position_section"/>
 
 </LinearLayout>
 
