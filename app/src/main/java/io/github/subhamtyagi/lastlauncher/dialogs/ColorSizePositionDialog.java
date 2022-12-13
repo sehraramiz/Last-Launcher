@@ -47,6 +47,7 @@ public class ColorSizePositionDialog extends Dialog {
     private int appPosition;
     private Runnable runnable;
     private int appColor;
+    private boolean colorChange = false;
 
     public ColorSizePositionDialog(Context context, String appPackage, int appColor, TextView textView, int appSize, int appPosition, LauncherActivity launcherActivity) {
         super(context);
@@ -82,6 +83,7 @@ public class ColorSizePositionDialog extends Dialog {
         colorSeekBar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
             textView.setTextColor(color);
             appColor = color;
+            colorChange = true;
             // DbUtils.putAppColorImmediately(appPackage, color);
         });
 
@@ -113,6 +115,7 @@ public class ColorSizePositionDialog extends Dialog {
 
             size.setText(String.valueOf(appSize));
             textView.setTextSize(appSize);
+            launcherActivity.onAppSizeChange(appPackage, appSize);
         });
 
         minus.setOnClickListener(view -> {
@@ -123,6 +126,7 @@ public class ColorSizePositionDialog extends Dialog {
 
             size.setText(String.valueOf(appSize));
             textView.setTextSize(appSize);
+            launcherActivity.onAppSizeChange(appPackage, appSize);
         });
 
 
@@ -143,6 +147,7 @@ public class ColorSizePositionDialog extends Dialog {
                 size.setText(String.valueOf(appSize));
                 textView.setTextSize(appSize);
                 handler.postDelayed(runnable, DELAY);
+                launcherActivity.onAppSizeChange(appPackage, appSize);
             };
             handler.removeCallbacks(runnable);
             handler.postDelayed(runnable, DELAY);
@@ -165,6 +170,7 @@ public class ColorSizePositionDialog extends Dialog {
                 size.setText(String.valueOf(appSize));
                 textView.setTextSize(appSize);
                 handler.postDelayed(runnable, DELAY);
+                launcherActivity.onAppSizeChange(appPackage, appSize);
             };
             handler.removeCallbacks(runnable);
             handler.postDelayed(runnable, DELAY);
@@ -227,6 +233,8 @@ public class ColorSizePositionDialog extends Dialog {
         DbUtils.putAppColor(appPackage, appColor);
         DbUtils.putAppSize(appPackage, appSize);
         DbUtils.putAppPosition(appPackage, appPosition);
+        if (colorChange)
+            launcherActivity.onAppColorChange(appPackage, appColor);
 
     }
 }

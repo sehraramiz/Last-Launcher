@@ -789,6 +789,34 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    public void onAppColorChange(String activityName, int appNewColor) {
+        synchronized (mAppsList) {
+            for (Apps app : mAppsList) {
+                if (app.getActivityName().equalsIgnoreCase(activityName)) {
+                    app.setColor(appNewColor);
+                    if (SORT_BY_COLOR == DbUtils.getSortsTypes()) {
+                        sortApps(SORT_BY_COLOR);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    public void onAppSizeChange(String activityName, int appNewSize) {
+        synchronized (mAppsList) {
+            for (Apps app : mAppsList) {
+                if (app.getActivityName().equalsIgnoreCase(activityName)) {
+                    app.setSize(appNewSize);
+                    if (SORT_BY_SIZE == DbUtils.getSortsTypes()) {
+                        sortApps(SORT_BY_SIZE);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
     // reset the app
     private void resetApp(String activityName) {
         DbUtils.removeAppName(activityName);
