@@ -208,6 +208,9 @@ public class GlobalSettingsDialog extends Dialog implements View.OnClickListener
                 case R.id.menu_sort_by_size:
                     launcherActivity.sortApps(Constants.SORT_BY_SIZE);
                     break;
+                case R.id.menu_sort_by_position:
+                    launcherActivity.sortApps(Constants.SORT_BY_POSITION);
+                    break;
                 case R.id.menu_sort_by_update_time:
                     launcherActivity.sortApps(Constants.SORT_BY_UPDATE_TIME);
                     break;

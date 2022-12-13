@@ -42,6 +42,7 @@ public class DbUtils {
 
     public static final int NULL_TEXT_SIZE = -1;
     public final static int NULL_TEXT_COLOR = -1;
+    public static final int NULL_POSITION = 0;
 
     private static final String PADDING_TOP = "padding_top";
     private static final String RANDOM_COLOR_FOR_APPS = "random_color_for_apps";
@@ -97,6 +98,12 @@ public class DbUtils {
 
     }
 
+    public static void putAppPosition(String activityName, int position) {
+        activityName = activityName.replaceAll("\\.", "_") + "_position";
+        SpUtils.getInstance().putInt(activityName, position);
+
+    }
+
     public static void putAppColor(String activityName, int color) {
         activityName = activityName.replaceAll("\\.", "_") + "_color";
         SpUtils.getInstance().putInt(activityName, color);
@@ -121,6 +128,11 @@ public class DbUtils {
     public static int getAppSize(String activityName) {
         activityName = activityName.replaceAll("\\.", "_") + "_size";
         return SpUtils.getInstance().getInt(activityName, NULL_TEXT_SIZE);
+    }
+
+    public static int getAppPosition(String activityName) {
+        activityName = activityName.replaceAll("\\.", "_") + "_position";
+        return SpUtils.getInstance().getInt(activityName, NULL_POSITION);
     }
 
     public static int getAppColor(String activityName) {

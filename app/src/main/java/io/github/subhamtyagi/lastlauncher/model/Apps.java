@@ -45,6 +45,8 @@ public class Apps {
     private int size;
     // is app text size frozen
     private boolean isSizeFrozen;
+    // app position for sorting by position
+    private int position;
     // is app hidden from home screen
     private boolean isAppHidden;
     //store how many time this app is opened by user
@@ -70,12 +72,13 @@ public class Apps {
      * @param tv            a text view corresponding to App
      * @param color         Text color
      * @param size          Text Size
+     * @param position      App sorting position
      * @param isAppHidden   boolean to tell 'is app hide
      * @param isSizeFrozen  is app size to freeze
      * @param openingCounts how many time apps was opened before this addition
      * @param updateTime    update time of this app since epoch (use for sorting)
      */
-    public Apps(boolean isShortcut, String activity, String appName, AppTextView tv, int color, int size, boolean isAppHidden, boolean isSizeFrozen, int openingCounts, int updateTime) {
+    public Apps(boolean isShortcut, String activity, String appName, AppTextView tv, int color, int size, int position, boolean isAppHidden, boolean isSizeFrozen, int openingCounts, int updateTime) {
 
         this.isShortcut = isShortcut;
         this.textView = tv;
@@ -83,6 +86,7 @@ public class Apps {
 
         this.color = color;
         this.size = size;
+        this.position = position;
         this.updateTime = updateTime;
 
         if (isShortcut) {
@@ -106,6 +110,7 @@ public class Apps {
         this.openingCounts = openingCounts;
 
         setSize(size);
+        setPosition(position);
         setAppHidden(isAppHidden);
         setFreeze(isSizeFrozen);
 
@@ -137,6 +142,15 @@ public class Apps {
         this.size = size;
         textView.setTextSize(size);
         DbUtils.putAppSize(activity, size);
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+        DbUtils.putAppPosition(activity, position);
     }
 
     public void setFreeze(boolean freezeSize) {

@@ -75,7 +75,7 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
-import io.github.subhamtyagi.lastlauncher.dialogs.ColorSizeDialog;
+import io.github.subhamtyagi.lastlauncher.dialogs.ColorSizePositionDialog;
 import io.github.subhamtyagi.lastlauncher.dialogs.FrozenAppsDialogs;
 import io.github.subhamtyagi.lastlauncher.dialogs.GlobalColorSizeDialog;
 import io.github.subhamtyagi.lastlauncher.dialogs.GlobalSettingsDialog;
@@ -100,6 +100,7 @@ import static io.github.subhamtyagi.lastlauncher.utils.Constants.BACKUP_REQUEST;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.COLOR_SNIFFER_REQUEST;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.DEFAULT_COLOR_FOR_APPS;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.DEFAULT_TEXT_SIZE_NORMAL_APPS;
+import static io.github.subhamtyagi.lastlauncher.utils.Constants.DEFAULT_POSITION;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.DEFAULT_TEXT_SIZE_OFTEN_APPS;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.FONTS_REQUEST;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.RESTORE_REQUEST;
@@ -108,6 +109,7 @@ import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_NAME;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_OPENING_COUNTS;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_RECENT_OPEN;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_SIZE;
+import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_POSITION;
 import static io.github.subhamtyagi.lastlauncher.utils.Constants.SORT_BY_UPDATE_TIME;
 
 /**
@@ -341,7 +343,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         List<String> coloredAppsList = Utils.getColoredAppsList();
 
         String packageName, appName;
-        int color, textSize;
+        int color, textSize, position;
         boolean hide;
         // iterate over each app and initialize app list
         for (ResolveInfo resolveInfo : activities) {
@@ -358,6 +360,8 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
             hide = DbUtils.isAppHidden(activity);
             // get the app text size
             textSize = DbUtils.getAppSize(activity);
+            // get the app position
+            position = DbUtils.getAppPosition(activity);
 
             // check if text size is null then set the size to default size
             // size is null(-1) when user installed this app
@@ -419,7 +423,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                 updateTime = 0;
             }
             // save all and add this is to app list
-            mAppsList.add(new Apps(false, activity, appName, getCustomView(), color, textSize, hide, freeze, openingCounts, updateTime));
+            mAppsList.add(new Apps(false, activity, appName, getCustomView(), color, textSize, position, hide, freeze, openingCounts, updateTime));
 
         }
 
@@ -451,6 +455,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                 // get color and size for this shortcut
                 int sColor = DbUtils.getAppColor(sActivity);
                 int sSize = DbUtils.getAppSize(sActivity);
+                int sPosition = DbUtils.getAppPosition(sActivity);
 
                 if (sSize == DbUtils.NULL_TEXT_SIZE) {
                     sSize = DEFAULT_TEXT_SIZE_NORMAL_APPS;
@@ -469,7 +474,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
                 // add this shortcut to list
                 // currently shortcut hide is disabled
-                mAppsList.add(new Apps(true, uri, sName, getCustomView(), sColor, sSize, false, sFreeze, sOpeningCount, 0));
+                mAppsList.add(new Apps(true, uri, sName, getCustomView(), sColor, sSize, sPosition, false, sFreeze, sOpeningCount, 0));
 
             }
         }
@@ -704,7 +709,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                     boolean hide = app.isHidden();
                     boolean freezeSize = app.isSizeFrozen();
                     int appUpdateTime = app.getUpdateTime();
-                    Apps newApp = new Apps(app.isShortcut(), activityName, appName, getCustomView(), color, DEFAULT_TEXT_SIZE_NORMAL_APPS, hide, freezeSize, openingCounts, appUpdateTime);
+                    Apps newApp = new Apps(app.isShortcut(), activityName, appName, getCustomView(), color, DEFAULT_TEXT_SIZE_NORMAL_APPS, DEFAULT_POSITION, hide, freezeSize, openingCounts, appUpdateTime);
 
                     //mAppsList.add(newApp);
                     iterator.add(newApp);
@@ -770,6 +775,20 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    public void onAppPositionChange(String activityName, int appNewPosition) {
+        synchronized (mAppsList) {
+            for (Apps app : mAppsList) {
+                if (app.getActivityName().equalsIgnoreCase(activityName)) {
+                    app.setPosition(appNewPosition);
+                    if (SORT_BY_POSITION == DbUtils.getSortsTypes()) {
+                        sortApps(SORT_BY_POSITION);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
     // reset the app
     private void resetApp(String activityName) {
         DbUtils.removeAppName(activityName);
@@ -809,7 +828,10 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                 }
             }
         }
-        dialogs = new ColorSizeDialog(this, activityName, color, view, size);
+
+        int position = DbUtils.getAppPosition(activityName);
+
+        dialogs = new ColorSizePositionDialog(this, activityName, color, view, size, position, this);
 
         Window window = dialogs.getWindow();
         if (window != null) {
@@ -1206,7 +1228,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     private void addShortcut(String uri, String appName) {
         if (mAppsList == null) return;
-        mAppsList.add(new Apps(true, uri, appName, getCustomView(), DbUtils.NULL_TEXT_COLOR, DEFAULT_TEXT_SIZE_NORMAL_APPS, false, false, 0, (int) System.currentTimeMillis() / 1000));
+        mAppsList.add(new Apps(true, uri, appName, getCustomView(), DbUtils.NULL_TEXT_COLOR, DEFAULT_TEXT_SIZE_NORMAL_APPS, DEFAULT_POSITION, false, false, 0, (int) System.currentTimeMillis() / 1000));
         shortcutUtils.addShortcut(new Shortcut(appName, uri));
         // Log.d(TAG, "addShortcut: shortcut name==" + appName);
         sortApps(DbUtils.getSortsTypes());
@@ -1341,6 +1363,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                                 return -t1.getRecentUsedWeight() + apps.getRecentUsedWeight();
                             }
                         });
+                        break;
+                    case SORT_BY_POSITION://descending
+                        Collections.sort(mAppsList, (apps, t1) -> (apps.getPosition() - t1.getPosition()));
                         break;
                     case SORT_BY_OPENING_COUNTS://descending
                         Collections.sort(mAppsList, (apps, t1) -> {

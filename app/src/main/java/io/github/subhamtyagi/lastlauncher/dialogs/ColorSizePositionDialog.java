@@ -25,12 +25,13 @@ import android.os.Handler;
 import android.view.Window;
 import android.widget.TextView;
 
+import io.github.subhamtyagi.lastlauncher.LauncherActivity;
 import io.github.subhamtyagi.lastlauncher.R;
 import io.github.subhamtyagi.lastlauncher.utils.DbUtils;
 import io.github.subhamtyagi.lastlauncher.views.colorseekbar.ColorSeekBar;
 
 // choose color Dialog
-public class ColorSizeDialog extends Dialog {
+public class ColorSizePositionDialog extends Dialog {
 
     private static final int DELAY = 25;
     //private static final String TAG = "ChooseSize";
@@ -40,18 +41,21 @@ public class ColorSizeDialog extends Dialog {
     private final Handler handler = new Handler();
     private final String appPackage;
     private final TextView textView;
+    private final LauncherActivity launcherActivity;
 
     private int appSize;
+    private int appPosition;
     private Runnable runnable;
     private int appColor;
-    // boolean change=false;
 
-    public ColorSizeDialog(Context context, String appPackage, int appColor, TextView textView, int appSize) {
+    public ColorSizePositionDialog(Context context, String appPackage, int appColor, TextView textView, int appSize, int appPosition, LauncherActivity launcherActivity) {
         super(context);
         this.appPackage = appPackage;
         this.appColor = appColor;
         this.textView = textView;
         this.appSize = appSize;
+        this.appPosition = appPosition;
+        this.launcherActivity = launcherActivity;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class ColorSizeDialog extends Dialog {
         // getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         // no title please
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.dialog_color_size);
+        setContentView(R.layout.dialog_color_size_position);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 
@@ -78,7 +82,6 @@ public class ColorSizeDialog extends Dialog {
         colorSeekBar.setOnColorChangeListener((colorBarPosition, alphaBarPosition, color) -> {
             textView.setTextColor(color);
             appColor = color;
-            // change=true;
             // DbUtils.putAppColorImmediately(appPackage, color);
         });
 
@@ -90,10 +93,17 @@ public class ColorSizeDialog extends Dialog {
 
         size.setText(String.valueOf(appSize));
 
+        // position related
+        TextView posPlus = findViewById(R.id.btn_position_plus);
+        TextView posMinus = findViewById(R.id.btn_position_minus);
+        TextView position = findViewById(R.id.tv_position);
 
+        size.setText(String.valueOf(appSize));
+        position.setText(String.valueOf(appPosition));
+
+        // app size buttons listeners
         plus.setOnClickListener(view -> {
 
-            // change=true;
             appSize++;
 
             if (appSize >= DEFAULT_MAX_TEXT_SIZE) {
@@ -106,7 +116,6 @@ public class ColorSizeDialog extends Dialog {
         });
 
         minus.setOnClickListener(view -> {
-            //change=true;
             --appSize;
             if (appSize < DEFAULT_MIN_TEXT_SIZE) {
                 appSize = DEFAULT_MIN_TEXT_SIZE;
@@ -124,7 +133,6 @@ public class ColorSizeDialog extends Dialog {
                     return;
                 }
                 // increase value
-                // change=true;
                 appSize++;
 
                 if (appSize >= DEFAULT_MAX_TEXT_SIZE) {
@@ -150,7 +158,6 @@ public class ColorSizeDialog extends Dialog {
                 }
                 // decrease value
                 --appSize;
-                // change=true;
                 if (appSize < DEFAULT_MIN_TEXT_SIZE) {
                     appSize = DEFAULT_MIN_TEXT_SIZE;
                 }
@@ -164,6 +171,54 @@ public class ColorSizeDialog extends Dialog {
             return true;
         });
 
+        // app position button listeners
+        posPlus.setOnClickListener(view -> {
+
+            appPosition++;
+            position.setText(String.valueOf(appPosition));
+            launcherActivity.onAppPositionChange(appPackage, appPosition);
+        });
+
+        posMinus.setOnClickListener(view -> {
+            --appPosition;
+            position.setText(String.valueOf(appPosition));
+            launcherActivity.onAppPositionChange(appPackage, appPosition);
+        });
+
+        posPlus.setOnLongClickListener(view -> {
+            runnable = () -> {
+                if (!posPlus.isPressed()) {
+                    handler.removeCallbacks(runnable);
+                    return;
+                }
+                // increase value
+                appPosition++;
+                position.setText(String.valueOf(appPosition));
+                handler.postDelayed(runnable, DELAY);
+                launcherActivity.onAppPositionChange(appPackage, appPosition);
+            };
+            handler.removeCallbacks(runnable);
+            handler.postDelayed(runnable, DELAY);
+            return true;
+        });
+
+
+        posMinus.setOnLongClickListener(view -> {
+            runnable = () -> {
+                if (!posMinus.isPressed()) {
+                    handler.removeCallbacks(runnable);
+                    return;
+                }
+                // decrease value
+                --appPosition;
+                position.setText(String.valueOf(appPosition));
+                handler.postDelayed(runnable, DELAY);
+                launcherActivity.onAppPositionChange(appPackage, appPosition);
+            };
+            handler.removeCallbacks(runnable);
+            handler.postDelayed(runnable, DELAY);
+            return true;
+        });
     }
 
     @Override
@@ -171,6 +226,7 @@ public class ColorSizeDialog extends Dialog {
         super.onStop();
         DbUtils.putAppColor(appPackage, appColor);
         DbUtils.putAppSize(appPackage, appSize);
+        DbUtils.putAppPosition(appPackage, appPosition);
 
     }
 }
