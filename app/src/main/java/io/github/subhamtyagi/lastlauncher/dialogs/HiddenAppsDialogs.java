@@ -86,11 +86,11 @@ public class HiddenAppsDialogs extends Dialog {
             ctx = new ContextThemeWrapper(context, DbUtils.getTheme());
 
         PopupMenu popupMenu = new PopupMenu(ctx, view);
-        popupMenu.getMenuInflater().inflate(R.menu.remove_popup, popupMenu.getMenu());
+        popupMenu.getMenuInflater().inflate(R.menu.hidden_app_popup, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
 
-            if (menuItem.getItemId() == R.id.menu_remove_this) {
+            if (menuItem.getItemId() == R.id.menu_unhide_this) {
                 apps.setAppHidden(false);
                 updateHiddenList();
             } else if (menuItem.getItemId() == R.id.menu_run_this_app) {
