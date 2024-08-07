@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -77,6 +78,14 @@ public class HiddenAppsDialogs extends Dialog {
         }
     }
 
+    private void showAppInfo(Apps apps, View view) {
+        if (!apps.isShortcut()) {
+            final Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.parse("package:" + apps.getActivityName().split("/")[0]));
+            context.startActivity(intent);
+        }
+    }
+
     private boolean confirmationAndRemove(Apps apps, View view) {
 
         Context ctx;
@@ -86,15 +95,17 @@ public class HiddenAppsDialogs extends Dialog {
             ctx = new ContextThemeWrapper(context, DbUtils.getTheme());
 
         PopupMenu popupMenu = new PopupMenu(ctx, view);
-        popupMenu.getMenuInflater().inflate(R.menu.remove_popup, popupMenu.getMenu());
+        popupMenu.getMenuInflater().inflate(R.menu.hidden_app_popup, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
 
-            if (menuItem.getItemId() == R.id.menu_remove_this) {
+            if (menuItem.getItemId() == R.id.menu_unhide_this) {
                 apps.setAppHidden(false);
                 updateHiddenList();
             } else if (menuItem.getItemId() == R.id.menu_run_this_app) {
                 openApp(apps, view);
+            } else if (menuItem.getItemId() == R.id.menu_app_info) {
+                showAppInfo(apps, view);
             }
             return true;
 

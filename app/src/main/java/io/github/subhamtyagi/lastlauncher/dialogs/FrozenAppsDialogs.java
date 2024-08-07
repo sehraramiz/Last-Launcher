@@ -70,11 +70,11 @@ public class FrozenAppsDialogs extends Dialog {
             ctx = new ContextThemeWrapper(context, DbUtils.getTheme());
 
         PopupMenu popupMenu = new PopupMenu(ctx, view);
-        popupMenu.getMenuInflater().inflate(R.menu.remove_popup, popupMenu.getMenu());
+        popupMenu.getMenuInflater().inflate(R.menu.frozen_app_popup, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
 
-            if (menuItem.getItemId() == R.id.menu_remove_this) {
+            if (menuItem.getItemId() == R.id.menu_unfreeze_this) {
                 apps.setFreeze(false);
                 updateFrozenList();
             }
